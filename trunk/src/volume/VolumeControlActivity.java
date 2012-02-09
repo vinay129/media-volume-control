@@ -199,6 +199,12 @@ public class VolumeControlActivity extends Activity  implements OnCompletionList
 
 	@Override
 	public void onBufferingUpdate(MediaPlayer mp, int percent) {
-		this.progressTextView.setText("Buffering "+percent+"%");
+		final int p = percent;
+		this.runOnUiThread(new Runnable() {  
+			@Override
+			public void run() {  
+				progressTextView.setText("Buffering "+p+"%");
+			}
+		});
 	}
 }
