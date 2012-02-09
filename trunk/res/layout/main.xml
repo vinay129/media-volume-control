@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+		
+	<RelativeLayout 
+		android:id="@+id/playerLayout"  
+		android:layout_width="120dp" 
+		android:layout_height="60dp" 
+		android:layout_gravity="center"
+		android:gravity="center"
+		android:layout_centerInParent="true"
+		android:background="@layout/shape_rounded_black_alpha"> 
+					
+		<Button 
+			android:id="@+id/playPauseButton" 
+			android:background="@layout/play_button"
+	    	android:layout_width="30dp"
+	    	android:layout_height="30dp"
+			android:layout_margin="2dp"
+			android:layout_gravity="center"
+			android:gravity="center"
+			android:visibility="gone"
+			android:layout_centerInParent="true">
+		</Button>  
+				
+		<LinearLayout 
+			android:id="@+id/progressLayout" 
+   	 		android:orientation="horizontal"
+	      	android:layout_width="wrap_content"  
+	      	android:layout_height="wrap_content" 
+			android:layout_gravity="center"
+			android:gravity="center"
+			android:visibility="visible"
+			android:layout_centerInParent="true">
+				
+			<ProgressBar 
+				android:id="@+id/progressBar" 
+		      	android:layout_width="wrap_content"  
+		      	android:layout_height="wrap_content" 
+		      	android:maxWidth="20dp" 
+		      	android:minWidth="20dp" 
+		      	android:maxHeight="20dp" 
+		      	android:minHeight="20dp"
+				android:padding="5dp"  
+	   		 	android:indeterminate="true" 
+				android:visibility="visible"
+				android:layout_gravity="left|center_vertical"  /> 
+				
+			<TextView  
+				android:id="@+id/progressTextView" 
+				android:layout_width="wrap_content" 
+				android:layout_height="wrap_content" 
+				android:textStyle="bold" 
+				android:textSize="12sp"
+				android:text="Bufferring..."
+				android:singleLine="true"
+				android:layout_marginLeft="1dp"
+				android:layout_gravity="left|center_vertical" /> 
+				
+		</LinearLayout>
+			
+	</RelativeLayout> 
+	 
+	<SeekBar 
+		android:id="@+id/volumeSeekBar"
+		android:layout_width="220dp"  
+		android:layout_height="wrap_content" 
+  		android:minWidth="220dp" 
+  		android:maxHeight="10dp" 
+  		android:max="100"
+		android:layout_margin="5dp"
+		android:layout_marginTop="50dp"
+		android:layout_gravity="center"
+		android:gravity="center"
+		android:layout_centerInParent="true"
+		android:layout_below="@id/playerLayout"/> 
+		
+</RelativeLayout>
