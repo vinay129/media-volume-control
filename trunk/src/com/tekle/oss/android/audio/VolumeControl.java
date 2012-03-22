@@ -31,11 +31,20 @@ import android.media.MediaPlayer;
 import android.os.Handler; 
 
 /**
- * This class provides a singleton object for controlling and monitoring the system volume. In particular, this class provides for the "smooth" control of the volume level (unlike the five stage volume level provided by the {@link AudioManager} and device buttons).
+ * This class provides a singleton object for controlling and monitoring the system volume. In particular, 
+ * this class provides for the "smooth" control of the volume level (unlike the five stage volume level 
+ * provided by the {@link AudioManager} and device buttons).
  * <p /> 
- * To use this class, acquire the singleton instance via the static method {@link #sharedVolumeControl()} then register listeners using {@link #addVolumeChangeListener(VolumeChangeListener)} to receive updates when volume changed. Update calls are done on the UI (i.e. main) thread and therefore are safe to update UI elements within the interface method implementation. 
+ * To use this class, acquire the singleton instance via the static method {@link #sharedVolumeControl()}. 
+ * To receive updates when volume changed (for example, by the user using the volume up/down buttons), 
+ * start the volume monitor using {@link #startVolumeMonitor()} then register a listener using 
+ * {@link #addVolumeChangeListener(VolumeChangeListener)}. Update callbacks are done on the UI (i.e. main) 
+ * thread and therefore are safe to update UI elements within the interface method implementation. 
  * <p />
- * <em>NOTE: the {@link VolumeControl} singleton objects needs to be configured using the {@link #configure(Activity, MediaPlayer)} method prior to calling any other method on the object.</em>
+ * <em>NOTE: the {@link VolumeControl} singleton objects needs to be configured using the 
+ * {@link #configure(Activity, MediaPlayer)} method prior to calling any other method on the object. 
+ * It is also advised the volume level monitor be started (using {@link #startVolumeMonitor()}) when 
+ * the singleton object is configured.</em>
  * 
  * @author Ephraim A. Tekle
  *
@@ -56,7 +65,51 @@ public class VolumeControl {
 		
 		return sharedVolumeControl;
 	}
+	
+	/**
+	 * The {@code VolumeChangeIndicator} enumerates the volume level change indicators that can be used 
+	 * when programmatically changing the volume level (using {@link VolumeControl#setVolume(float)}).
+	 * 
+	 * @author Ephraim A. Tekle
+	 *
+	 */
+	public static enum VolumeChangeIndicator {
+		/**
+		 * Play a sound when changing the volume
+		 * @see #SHOW_DIALOG
+		 */
+		PLAY_SOUND,
+		/**
+		 * Show a (progress bar) dialog when changing the volume
+		 * @see #PLAY_SOUND
+		 */
+		SHOW_DIALOG,
+		/**
+		 * Play a sound and show a dialog when changing the volume
+		 * @see #PLAY_SOUND
+		 * @see #SHOW_DIALOG
+		 */
+		PLAY_SOUND_AND_SHOW_DIALOG,
+		/**
+		 * Do not show any volume level change indicator
+		 */
+		NONE;
+		
+		int getFlag() {
+			switch(this) {
+			case PLAY_SOUND:
+				return AudioManager.FLAG_PLAY_SOUND;
+			case SHOW_DIALOG:
+				return AudioManager.FLAG_SHOW_UI;
+			case PLAY_SOUND_AND_SHOW_DIALOG:
+				return PLAY_SOUND.getFlag() | SHOW_DIALOG.getFlag();
+			default:
+				return AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE;
+			}
+		}
+	}
 
+	private VolumeChangeIndicator volumeChangeIndicator = VolumeChangeIndicator.SHOW_DIALOG;
 	private final static float GRANULARITY = 100;  
 	static final int VOLUME_MONITOR_RATE_MS = 1000;
 	//static final int VOLUME_MONITOR_RATE_HIGH_MS = 100; // sampling rate when volume change is detected
@@ -111,13 +164,14 @@ public class VolumeControl {
 	}
 	
 	/**
-	 * Sets the volume using {@code AudioManager} and the {@code MediaPlayer}
+	 * Sets the volume using {@code AudioManager} and the {@code MediaPlayer} (use {@link #setVolumeChangeIndicator(VolumeChangeIndicator)} to change the volume change indicator).
 	 * 
 	 * @param volume the volume level between 0 (mute) and 1 (maximum volume).
+	 * @see #setVolumeChangeIndicator(VolumeChangeIndicator)
 	 */
 	public void setVolume(float volume) {
 
-		this.audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, (int) (Math.ceil(SYSTEM_MAX_VOLUME*volume)), AudioManager.FLAG_SHOW_UI);
+		this.audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, (int) (Math.ceil(SYSTEM_MAX_VOLUME*volume)), volumeChangeIndicator.getFlag());
 		
 		float systemVolume = this.getSystemVolume();
 		
@@ -239,6 +293,24 @@ public class VolumeControl {
 				primaryVolumeUpdater();
 			}
 		}, samplingRate);
+	}
+	
+	/**
+	 * Set the volume change indicator used when volume is changed using  {@link #setVolume(float)}.
+	 * @param indicator the desired volume change indicator
+	 * @see #getVolumeChangeIndicator()
+	 */
+	public void setVolumeChangeIndicator(VolumeChangeIndicator indicator) {
+		this.volumeChangeIndicator = indicator;
+	}
+	
+	/**
+	 * Returns the volume change indicator used when volume is changed using  {@link #setVolume(float)}.
+	 * @return the volume change indicator
+	 * @see #setVolumeChangeIndicator(VolumeChangeIndicator)
+	 */
+	public VolumeChangeIndicator getVolumeChangeIndicator() {
+		return this.volumeChangeIndicator;
 	}
 	 
 	/**
